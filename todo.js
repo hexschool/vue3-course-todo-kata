@@ -1,4 +1,4 @@
-import {createApp, reactive, ref, computed, onMounted} from './node_modules/vue/dist/vue.esm-browser.js';
+import {createApp, ref, computed, onMounted} from './node_modules/vue/dist/vue.esm-browser.js';
 
 const STORAGE_KEY = 'todos-vuejs-2.0';
 const todoStorage = {
