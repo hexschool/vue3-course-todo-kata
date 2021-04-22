@@ -61,20 +61,21 @@
       </section>
       <footer class="footer" v-show="todos.length" v-cloak>
         <span class="todo-count">
-          <strong>{{ remaining }}</strong> {{ remaining | pluralize }} left
+          <strong>{{ remaining }}</strong> {{ pluralize(remaining) }} left
         </span>
         <ul class="filters">
           <li>
-            <a href="#/all" :class="{ selected: visibility == 'all' }">All</a>
+            <a href="#/all" @click.prevent="visibility = 'all'" :class="{ selected: visibility == 'all' }">All</a>
           </li>
           <li>
-            <a href="#/active" :class="{ selected: visibility == 'active' }"
+            <a href="#/active" @click.prevent="visibility = 'active'" :class="{ selected: visibility == 'active' }"
               >Active</a
             >
           </li>
           <li>
             <a
               href="#/completed"
+              @click.prevent="visibility = 'completed'"
               :class="{ selected: visibility == 'completed' }"
               >Completed</a
             >

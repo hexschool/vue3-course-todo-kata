@@ -61,7 +61,7 @@
       </section>
       <footer class="footer" v-show="todos.length" v-cloak>
         <span class="todo-count">
-          <strong>{{ remaining }}</strong> {{ remaining | pluralize }} left
+          <strong>{{ remaining }}</strong> {{ pluralize(remaining) }} left
         </span>
         <ul class="filters">
           <li>
@@ -96,44 +96,38 @@
     </footer>
     <script type="module">
       import { createApp } from 'https://cdnjs.cloudflare.com/ajax/libs/vue/3.0.5/vue.esm-browser.js';
-      // Full spec-compliant TodoMVC with localStorage persistence
-      // and hash-based routing in ~120 effective lines of JavaScript.
 
       // localStorage persistence
-      var STORAGE_KEY = 'todos-vuejs-2.0';
-      var todoStorage = {
-        fetch: function () {
-          var todos = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-          todos.forEach(function (todo, index) {
+      const STORAGE_KEY = 'todos-vuejs-2.0';
+      const todoStorage = {
+        fetch() {
+          const todos = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+          todos.forEach((todo, index) => {
             todo.id = index;
           });
           todoStorage.uid = todos.length;
           return todos;
         },
-        save: function (todos) {
+        save(todos) {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
         },
       };
 
       // visibility filters
-      var filters = {
-        all: function (todos) {
+      const filters = {
+        all(todos) {
           return todos;
         },
-        active: function (todos) {
-          return todos.filter(function (todo) {
-            return !todo.completed;
-          });
+        active(todos) {
+          return todos.filter((todo) => !todo.completed);
         },
-        completed: function (todos) {
-          return todos.filter(function (todo) {
-            return todo.completed;
-          });
+        completed(todos) {
+          return todos.filter((todo) => todo.completed);
         },
       };
 
       // app Vue instance
-      var app = createApp({
+      const app = createApp({
         // app initial state
         data() {
           return {
@@ -147,7 +141,7 @@
         // watch todos change for localStorage persistence
         watch: {
           todos: {
-            handler: function (todos) {
+            handler(todos) {
               todoStorage.save(todos);
             },
             deep: true,
@@ -157,18 +151,18 @@
         // computed properties
         // http://vuejs.org/guide/computed.html
         computed: {
-          filteredTodos: function () {
+          filteredTodos() {
             return filters[this.visibility](this.todos);
           },
-          remaining: function () {
+          remaining() {
             return filters.active(this.todos).length;
           },
           allDone: {
-            get: function () {
+            get() {
               return this.remaining === 0;
             },
-            set: function (value) {
-              this.todos.forEach(function (todo) {
+            set(value) {
+              this.todos.forEach((todo) => {
                 todo.completed = value;
               });
             },
@@ -178,10 +172,10 @@
         // methods that implement data logic.
         // note there's no DOM manipulation here at all.
         methods: {
-          pluralize: function (n) {
+          pluralize(n) {
             return n === 1 ? 'item' : 'items';
           },
-          addTodo: function () {
+          addTodo() {
             var value = this.newTodo && this.newTodo.trim();
             if (!value) {
               return;
@@ -194,16 +188,16 @@
             this.newTodo = '';
           },
 
-          removeTodo: function (todo) {
+          removeTodo(todo) {
             this.todos.splice(this.todos.indexOf(todo), 1);
           },
 
-          editTodo: function (todo) {
+          editTodo(todo) {
             this.beforeEditCache = todo.title;
             this.editedTodo = todo;
           },
 
-          doneEdit: function (todo) {
+          doneEdit(todo) {
             if (!this.editedTodo) {
               return;
             }
@@ -214,12 +208,12 @@
             }
           },
 
-          cancelEdit: function (todo) {
+          cancelEdit(todo) {
             this.editedTodo = null;
             todo.title = this.beforeEditCache;
           },
 
-          removeCompleted: function () {
+          removeCompleted() {
             this.todos = filters.active(this.todos);
           },
         },
@@ -238,22 +232,22 @@
         },
       });
 
+      // mount
+      const vm = app.mount('.todoapp');
+
       // handle routing
       function onHashChange() {
-        var visibility = window.location.hash.replace(/#\/?/, '');
+        const visibility = window.location.hash.replace(/#\/?/, '');
         if (filters[visibility]) {
-          app.visibility = visibility;
+          vm.visibility = visibility;
         } else {
           window.location.hash = '';
-          app.visibility = 'all';
+          vm.visibility = 'all';
         }
       }
 
       window.addEventListener('hashchange', onHashChange);
       onHashChange();
-
-      // mount
-      app.mount('.todoapp');
     </script>
   </body>
 </html>

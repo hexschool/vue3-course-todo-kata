@@ -1,4 +1,4 @@
-import {createApp, ref, computed, onMounted} from './node_modules/vue/dist/vue.esm-browser.js';
+import {createApp, ref, computed, onMounted, watch} from './node_modules/vue/dist/vue.esm-browser.js';
 
 const STORAGE_KEY = 'todos-vuejs-2.0';
 const todoStorage = {
@@ -25,23 +25,14 @@ const filters = {
 
 // app Vue instance
 const app = createApp({
-  data() {
-    return {
-      a: 'vDVb',
-      visibility: 'all'
-    };
-  },
-  setup: function () {
+  setup() {
     const todos = ref([]);
     const newTodo = ref('');
     const editedTodo = ref(null);
-    const visibility = ref('all');
-
-    // 區域變數
-    let beforeEditCache = '';
+    const visibility = ref('all')
 
     const filteredTodos = computed(() => filters[visibility.value](todos.value));
-    const remaining = computed(() => filters.active(todos.value).length);
+    const remaining = computed(() => filters.active(todos.value).length)
     const allDone = {
       get: () => remaining === 0,
       set: (value) => todos.value.forEach(todo => todo.completed = value)
@@ -49,7 +40,9 @@ const app = createApp({
 
     onMounted(() => todos.value = todoStorage.fetch());
 
-    function addTodo() {
+    const pluralize = (n) => n === 1 ? 'item' : 'items';
+
+    const addTodo = () => {
       const value = newTodo.value && newTodo.value.trim();
       if (!value) {
         return;
@@ -62,44 +55,56 @@ const app = createApp({
       newTodo.value = '';
     }
 
-    function pluralize(n) {
-      return n === 1 ? 'item' : 'items';
-    }
-
-    function removeTodo(todo) {
+    const removeTodo = (todo) => {
       todos.value.splice(todos.value.indexOf(todo), 1);
     }
 
-    function editTodo(todo) {
+    // 獨立邏輯（編輯及取消
+    let beforeEditCache = null;
+    const editTodo = (todo) => {
       beforeEditCache = todo.title;
       editedTodo.value = todo;
     }
 
-    function doneEdit(todo) {
+    const doneEdit = (todo) => {
       if (!editedTodo.value) {
         return;
       }
       editedTodo.value = null;
       todo.title = todo.title.trim();
       if (!todo.title) {
-        this.removeTodo(todo);
+        removeTodo(todo);
       }
     }
 
-    function cancelEdit(todo) {
+    const cancelEdit = (todo) => {
       editedTodo.value = null;
       todo.title = beforeEditCache;
     }
 
-    function removeCompleted() {
-      todos.value = filters.active(todos.value);
+    const removeCompleted = () => {
+      todos.value = filters.active(todos.value)
     }
 
+    watch(
+      todos,
+      () => {
+        todoStorage.save(todos.value);
+      }, {
+      deep: true
+    });
+
     return {
+      // data
       todos,
       newTodo,
       editedTodo,
       visibility,
+
+      // computed
+      filteredTodos,
+      remaining,
+      allDone,
 
       // methods
       pluralize,
@@ -108,13 +113,8 @@ const app = createApp({
       editTodo,
       doneEdit,
       cancelEdit,
-      removeCompleted,
-
-      // computed
-      filteredTodos,
-      remaining,
-      allDone
-    };
+      removeCompleted
+    }
   },
 
   directives: {

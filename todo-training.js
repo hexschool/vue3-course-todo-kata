@@ -25,13 +25,7 @@ const filters = {
 
 // app Vue instance
 const app = createApp({
-  data() {
-    return {
-      a: 'vDVb',
-      visibility: 'all'
-    };
-  },
-  setup: function () {
+  setup() {
     
   },
 
