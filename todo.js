@@ -26,22 +26,19 @@ const filters = {
 // app Vue instance
 const app = createApp({
   setup() {
+    // 顯示方法
     const todos = ref([]);
-    const newTodo = ref('');
-    const editedTodo = ref(null);
     const visibility = ref('all')
-
     const filteredTodos = computed(() => filters[visibility.value](todos.value));
     const remaining = computed(() => filters.active(todos.value).length)
     const allDone = {
       get: () => remaining === 0,
       set: (value) => todos.value.forEach(todo => todo.completed = value)
     };
-
-    onMounted(() => todos.value = todoStorage.fetch());
-
     const pluralize = (n) => n === 1 ? 'item' : 'items';
 
+    // 新增、刪除
+    const newTodo = ref('');
     const addTodo = () => {
       const value = newTodo.value && newTodo.value.trim();
       if (!value) {
@@ -60,6 +57,7 @@ const app = createApp({
     }
 
     // 獨立邏輯（編輯及取消
+    const editedTodo = ref(null);
     let beforeEditCache = null;
     const editTodo = (todo) => {
       beforeEditCache = todo.title;
@@ -86,6 +84,8 @@ const app = createApp({
       todos.value = filters.active(todos.value)
     }
 
+    // LocalStorage 操作
+    onMounted(() => todos.value = todoStorage.fetch());
     watch(
       todos,
       () => {
