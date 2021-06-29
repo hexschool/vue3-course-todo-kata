@@ -31,10 +31,6 @@ const app = createApp({
     const visibility = ref('all')
     const filteredTodos = computed(() => filters[visibility.value](todos.value));
     const remaining = computed(() => filters.active(todos.value).length)
-    const allDone = {
-      get: () => remaining === 0,
-      set: (value) => todos.value.forEach(todo => todo.completed = value)
-    };
     const pluralize = (n) => n === 1 ? 'item' : 'items';
 
     // 新增、刪除
@@ -80,9 +76,15 @@ const app = createApp({
       todo.title = beforeEditCache;
     }
 
+    //  狀態調整
     const removeCompleted = () => {
       todos.value = filters.active(todos.value)
     }
+
+    const allDone = computed({
+      get: () => remaining === 0,
+      set: (value) => todos.value.forEach(todo => todo.completed = value)
+    });
 
     // LocalStorage 操作
     onMounted(() => todos.value = todoStorage.fetch());
